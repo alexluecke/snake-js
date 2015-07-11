@@ -7,6 +7,7 @@ var Snake = function() {
 	self.loop = null;
 	self.paused = false;
 
+	self.keys = [],
 	self.key = {
 		LEFT: '37',
 		UP: '38',
@@ -44,7 +45,6 @@ var Snake = function() {
 	self.h = self.objs.canvas.height || window.innerHeight;
 
 	self.init = function() {
-			//We will add another clause to prevent reverse gear
 		self.setup_key_events();
 		self.reset();
 		self.run();
@@ -68,28 +68,37 @@ var Snake = function() {
 	}
 
 	self.setup_key_events = function() {
-		$(document).keydown(function(e){
-			var key = e.which;
-			if (key == self.key.LEFT && self.dir != 'right') {
-				self.dir = 'left';
-				self.update_objects();
-				self.env.render();
-			} else if (key == self.key.UP && self.dir != 'down') {
-				self.dir = 'up';
-				self.update_objects();
-				self.env.render();
-			} else if (key == self.key.RIGHT && self.dir != 'left') {
-				self.dir = 'right';
-				self.update_objects();
-				self.env.render();
-			} else if (key == self.key.DOWN && self.dir != 'up') {
-				self.dir = 'down';
-				self.update_objects();
-				self.env.render();
-			} else if (key == self.key.SPACE) {
-				self.toggle_pause();
-			}
-		})
+		window.addEventListener('keydown', function(e) {
+			console.log(e.keyCode);
+			self.keys[e.keyCode] = true;
+			self.check_keys(e);
+		}, false);
+		window.addEventListener('keyup', function(e) {
+			self.keys[e.keyCode] = false;
+		}, false);
+	}
+
+	self.check_keys = function(e) {
+		var key = e.keyCode;
+		if (key == self.key.LEFT && self.dir != 'right') {
+			self.dir = 'left';
+			self.update_objects();
+			self.env.render();
+		} else if (key == self.key.UP && self.dir != 'down') {
+			self.dir = 'up';
+			self.update_objects();
+			self.env.render();
+		} else if (key == self.key.RIGHT && self.dir != 'left') {
+			self.dir = 'right';
+			self.update_objects();
+			self.env.render();
+		} else if (key == self.key.DOWN && self.dir != 'up') {
+			self.dir = 'down';
+			self.update_objects();
+			self.env.render();
+		} else if (key == self.key.SPACE) {
+			self.toggle_pause();
+		}
 	}
 
 	self.create_food = function() {
