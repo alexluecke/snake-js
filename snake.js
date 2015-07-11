@@ -5,8 +5,15 @@ var Snake = function() {
 	self.dir = 'right';
 	self.score = 0;
 	self.loop = null;
+	self.paused = false;
 
-	self.key = { LEFT: '37', UP: '38', RIGHT: '39', DOWN: '40', };
+	self.key = {
+		LEFT: '37',
+		UP: '38',
+		RIGHT: '39',
+		DOWN: '40',
+		SPACE: '32',
+	};
 
 	self.objs = {
 		food: null,
@@ -15,6 +22,10 @@ var Snake = function() {
 	};
 
 	self.parms = {
+		font: {
+			regular: 'normal 12px monospace',
+			large: 'normal 24px monospace'
+		},
 		size: 10,
 		slen: 5,
 		scolor: '#eeeeee',
@@ -28,6 +39,7 @@ var Snake = function() {
 	}
 
 	self.context = self.objs.canvas.getContext("2d");
+	self.context.font = self.parms.font.regular;
 	self.w = self.objs.canvas.width || window.innerWidth;
 	self.h = self.objs.canvas.height || window.innerHeight;
 
@@ -39,6 +51,7 @@ var Snake = function() {
 	}
 
 	self.run = function() {
+		self.clear_timer();
 		self.loop = setInterval(function() {
 			self.update_objects();
 			self.env.render();
@@ -46,8 +59,7 @@ var Snake = function() {
 	}
 
 	self.reset = function() {
-		if (typeof self.loop !== "undefined")
-			clearInterval(self.loop);
+		self.clear_timer();
 		self.score = 0;
 		self.dir = 'right';
 		self.parms.time.interval = self.parms.time.default;
@@ -58,14 +70,25 @@ var Snake = function() {
 	self.setup_key_events = function() {
 		$(document).keydown(function(e){
 			var key = e.which;
-			if (key == self.key.LEFT && self.dir != 'right')
+			if (key == self.key.LEFT && self.dir != 'right') {
 				self.dir = 'left';
-			else if (key == self.key.UP && self.dir != 'down')
+				self.update_objects();
+				self.env.render();
+			} else if (key == self.key.UP && self.dir != 'down') {
 				self.dir = 'up';
-			else if (key == self.key.RIGHT && self.dir != 'left')
+				self.update_objects();
+				self.env.render();
+			} else if (key == self.key.RIGHT && self.dir != 'left') {
 				self.dir = 'right';
-			else if (key == self.key.DOWN && self.dir != 'up')
+				self.update_objects();
+				self.env.render();
+			} else if (key == self.key.DOWN && self.dir != 'up') {
 				self.dir = 'down';
+				self.update_objects();
+				self.env.render();
+			} else if (key == self.key.SPACE) {
+				self.toggle_pause();
+			}
 		})
 	}
 
@@ -86,12 +109,35 @@ var Snake = function() {
 	}
 
 	self.update_timer = function() {
-		if (typeof self.loop != "undefined")
-			clearInterval(self.loop);
+		self.clear_timer();
 		self.run();
 	}
 
+	self.clear_timer = function() {
+		if (typeof self.loop != "undefined")
+			clearInterval(self.loop);
+	}
+
+	self.toggle_pause = function() {
+		if (self.paused === true) {
+			self.paused = false;
+			self.run();
+		} else {
+			self.context.fillStyle = self.parms.tcolor;
+			self.context.font = self.parms.font.large;
+			self.context.fillStyle = 'white';
+			self.context.fillText('Paused', self.w/2-3*20, self.h/2);
+			self.context.font = self.parms.font.regular;
+			self.paused = true;
+			self.clear_timer();
+		}
+	}
+
 	self.update_objects = function() {
+
+		if (self.paused)
+			return;
+
 		var head = self.objs.snake[0];
 		var nx = head.x
 			, ny = head.y;
