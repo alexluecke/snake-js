@@ -69,7 +69,6 @@ var Snake = function() {
 
 	self.setup_key_events = function() {
 		window.addEventListener('keydown', function(e) {
-			console.log(e.keyCode);
 			self.keys[e.keyCode] = true;
 			self.check_keys(e);
 		}, false);
