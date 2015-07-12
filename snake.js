@@ -47,7 +47,6 @@ var Snake = function() {
 	self.init = function() {
 		self.setup_key_events();
 		self.reset();
-		self.run();
 	}
 
 	self.run = function() {
@@ -241,4 +240,11 @@ var Snake = function() {
 $(document).ready(function(){
 	var g = new Snake();
 	g.init();
+	$('#StartSnake').on('click', function() {
+		var style_str = 'height: 100%; width: 100%; padding: 0; margin: 0;';
+		$('body').attr('style', style_str);
+		$('html').attr('style', style_str);
+		$(this).remove();
+		g.start();
+	});
 })
