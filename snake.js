@@ -52,6 +52,8 @@ var Snake = function() {
 	self.run = function() {
 		self.clear_timer();
 		self.loop = setInterval(function() {
+			if (self.paused)
+				return;
 			self.update_objects();
 			self.env.render();
 		}, self.parms.time.interval);
@@ -141,9 +143,6 @@ var Snake = function() {
 	}
 
 	self.update_objects = function() {
-
-		if (self.paused)
-			return;
 
 		var head = self.objs.snake[0];
 		var nx = head.x
