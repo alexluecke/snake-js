@@ -177,7 +177,7 @@ var Snake = function() {
 
 		// TODO: Change this to only render changed cells rather than reflowing the
 		// entire canvas. I don't quite know how I want to do this yet so I am
-		// defering for now.
+		// deferring for now.
 		self.env.render();
 	}
 
