@@ -1,50 +1,55 @@
-
 var Snake = function() {
 
 	var self = this;
 	self.dir = 'right';
-	self.score = 0;
 	self.loop = null;
+	self.score = 0;
 	self.paused = false;
 
 	self.keys = [],
+
 	self.key = {
 		LEFT: '37',
 		UP: '38',
 		RIGHT: '39',
 		DOWN: '40',
 		SPACE: '32',
-	};
+	}
 
 	self.objs = {
-		food: null,
-		snake: [],
-		canvas: $("#canvas")[0],
-	};
+		'food': null,
+		'canvas': null,
+		'snake': [],
+	}
 
 	self.parms = {
-		font: {
-			regular: 'normal 12px monospace',
-			large: 'normal 24px monospace'
-		},
 		size: 10,
 		slen: 5,
-		scolor: '#eeeeee',
-		ccolor: '#444444',
-		tcolor: '#ffffff',
+		font: {
+			'regular': 'normal 12px monospace',
+			'large': 'normal 24px monospace'
+		},
+		colors: {
+			'canvas': '#444444',
+			'snake': '#eeeeee',
+			'fruit': '#ff4444',
+		},
 		time: {
-			interval: 100,
-			default: 100,
-			speed_up: 5,
+			'interval': 100,
+			'default': 100,
+			'speed_up': 5,
 		}
 	}
 
-	self.context = self.objs.canvas.getContext("2d");
-	self.context.font = self.parms.font.regular;
-	self.w = self.objs.canvas.width || window.innerWidth;
-	self.h = self.objs.canvas.height || window.innerHeight;
+	self.context = {};
 
-	self.init = function() {
+	self.init = function(args) {
+		self.make_canvas();
+		self.context = self.objs.canvas.getContext("2d");
+		self.context.font = self.parms.font.regular;
+		self.w = self.objs.canvas.width || window.innerWidth;
+		self.h = self.objs.canvas.height || window.innerHeight;
+		$.extend(true, self.parms, args);
 		self.setup_key_events();
 		self.reset();
 	}
@@ -60,12 +65,22 @@ var Snake = function() {
 	}
 
 	self.reset = function() {
-		self.clear_timer();
 		self.score = 0;
 		self.dir = 'right';
+		self.clear_timer();
 		self.parms.time.interval = self.parms.time.default;
 		self.create_snake();
 		self.create_food();
+	}
+
+	self.make_canvas = function() {
+		$('body').text('');
+		var el = document.createElement('canvas');
+		el.setAttribute('id', 'canvas');
+		el.setAttribute('width', '512');
+		el.setAttribute('height', '288');
+		document.body.appendChild(el);
+		self.objs.canvas = $('#canvas')[0];
 	}
 
 	self.setup_key_events = function() {
@@ -132,7 +147,7 @@ var Snake = function() {
 			self.paused = false;
 			self.run();
 		} else {
-			self.context.fillStyle = self.parms.tcolor;
+			self.context.fillStyle = self.parms.colors.text;
 			self.context.font = self.parms.font.large;
 			self.context.fillStyle = 'white';
 			self.context.fillText('Paused', self.w/2-3*20, self.h/2);
@@ -193,7 +208,7 @@ var Snake = function() {
 
 		render: function() {
 			var sz = self.parms.size;
-			self.context.fillStyle = self.parms.ccolor;
+			self.context.fillStyle = self.parms.colors.canvas;
 			self.context.fillRect(0, 0, self.w, self.h);
 			self.context.strokeStyle = "black";
 			self.context.strokeRect(0, 0, self.w, self.h);
@@ -203,7 +218,7 @@ var Snake = function() {
 			self.env.draw_square(self.objs.food.x, self.objs.food.y, '#ff4444');
 
 			// Show the score
-			self.context.fillStyle = self.parms.tcolor;
+			self.context.fillStyle = self.parms.colors.text;
 			self.context.fillText(self.score, sz/2, sz);
 		},
 
@@ -211,7 +226,7 @@ var Snake = function() {
 			var len = self.objs.snake.length
 				, s = self.objs.snake;
 			for (var i=0; i <  len; i++) {
-				self.env.draw_square(s[i].x, s[i].y, self.parms.scolor);
+				self.env.draw_square(s[i].x, s[i].y, self.parms.colors.snake);
 			}
 		},
 
@@ -238,9 +253,9 @@ var Snake = function() {
 
 $(document).ready(function(){
 	var g = new Snake();
-	g.init();
 	$('#StartSnake').on('click', function() {
 		var style_str = 'height: 100%; width: 100%; padding: 0; margin: 0;';
+		g.init();
 		$('body').attr('style', style_str);
 		$('html').attr('style', style_str);
 		$(this).remove();
