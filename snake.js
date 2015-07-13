@@ -9,7 +9,7 @@ Snake.options = (function(core) {
 			'large': 'normal 24px monospace'
 		},
 		colors: {
-			'canvas': '#444444',
+			'canvas': '#282828',
 			'snake': '#eeeeee',
 			'fruit': '#ff4444',
 		},
