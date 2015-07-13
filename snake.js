@@ -228,21 +228,25 @@ Snake.timer = (function(core) {
 
 	var self = this;
 
-	self.interval = 100;
-	self.default = 100;
-	self.speed_up = 5;
 	self.paused = false;
 	self.loop = null;
-	self.func;
+
+	self.options = {
+		'interval': 100,
+		'default': 100,
+		'speed_up': 5,
+		'min': 20,
+		'func': null,
+	}
 
 	self.set_timee = function(f) {
-		self.func = f;
+		self.options.func = f;
 	}
 
 	self.start = function()  {
 		self.stop();
-		if (typeof self.func === "function")
-			self.loop = setInterval(self.func, self.interval);
+		if (typeof self.options.func === "function")
+			self.loop = setInterval(self.options.func, self.options.interval);
 		else
 			throw("NoTimeeFunctionSet");
 	}
@@ -258,7 +262,7 @@ Snake.timer = (function(core) {
 	}
 
 	self.reset = function() {
-		self.interval = self.default;
+		self.options.interval = self.options.default;
 	}
 
 	self.is_paused = function() {
@@ -266,8 +270,8 @@ Snake.timer = (function(core) {
 	}
 
 	self.decrease_interval = function() {
-		var t = self.interval;
-		self.interval = (t <= 20) ? t : t-self.speed_up;
+		var t = self.options.interval;
+		self.options.interval = (t <= self.options.min) ? t : t-self.options.speed_up;
 		self.restart();
 	}
 
