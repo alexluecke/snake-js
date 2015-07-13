@@ -52,20 +52,19 @@ Snake.options = (function(core) {
 	}
 
 	self.run = function() {
-		self.timer.clear();
-		self.timer.start(function() {
+		self.timer.set_timee(function() {
 			if (self.paused)
 				return;
 			self.update_objects();
 			self.env.render();
 		});
+		self.timer.start();
 	}
 
 	self.reset = function() {
 		self.score = 0;
 		self.dir = 'right';
-		self.timer.clear();
-		self.timer.interval = self.timer.default;
+		self.timer.reset();
 		self.create_snake();
 		self.create_food();
 	}
@@ -146,21 +145,22 @@ Snake.options = (function(core) {
 				|| ny < 0 || ny >= self.h/self.options.size
 				|| self.env.check_collision(nx, ny, self.objs.snake)) {
 			self.reset();
-			self.run();
+			self.timer.restart();
 			return;
 		}
 
 		// If the snake eats a food, it grows.
 		self.objs.snake.unshift({ x: nx, y: ny });
 		if (nx == self.objs.food.x && ny == self.objs.food.y) {
-			var t = self.timer.interval;
 			self.create_food();
-			self.timer.interval = (t <= 20) ? t : t-self.timer.speed_up;
-			self.timer.restart();
+			self.speed_up();
 			self.score++;
 		} else {
 			self.objs.snake.pop();
 		}
+
+		// Just using this as an alias of sorts
+		self.speed_up = self.timer.decrease_interval;
 
 		// TODO: Change this to only render changed cells rather than reflowing the
 		// entire canvas. I don't quite know how I want to do this yet so I am
@@ -233,36 +233,51 @@ Snake.timer = (function(core) {
 	self.speed_up = 5;
 	self.paused = false;
 	self.loop = null;
+	self.func;
 
-	self.start = function(f)  {
-		if (typeof f === "function")
-			self.loop = setInterval(f, self.interval);
+	self.set_timee = function(f) {
+		self.func = f;
+	}
+
+	self.start = function()  {
+		self.stop();
+		if (typeof self.func === "function")
+			self.loop = setInterval(self.func, self.interval);
 		else
-			throw("ExpectedTimerFunction");
+			throw("NoTimeeFunctionSet");
 	}
 
 	self.restart = function(value) {
-		self.clear();
-		core.run();
+		self.stop();
+		self.start();
 	}
 
-	self.clear = function() {
+	self.stop = function() {
 		if (typeof self.loop != "undefined")
 			clearInterval(self.loop);
 	}
 
+	self.reset = function() {
+		self.interval = self.default;
+	}
+
+	self.is_paused = function() {
+		return this.paused;
+	}
+
+	self.decrease_interval = function() {
+			var t = self.interval;
+			self.interval = (t <= 20) ? t : t-self.speed_up;
+			self.restart();
+	}
+
 	self.toggle_pause = function() {
-		if (self.paused === true) {
+		if (self.is_paused()) {
 			self.paused = false;
-			self.run();
+			self.start();
 		} else {
-			core.context.fillStyle = core.options.colors.text;
-			core.context.font = core.options.font.large;
-			core.context.fillStyle = 'white';
-			core.context.fillText('Paused', core.w/2-3*20, core.h/2);
-			core.context.font = core.options.font.regular;
-			core.paused = true;
-			core.timer.clear();
+			self.paused = true;
+			self.stop();
 		}
 	}
 
