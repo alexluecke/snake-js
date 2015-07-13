@@ -13,6 +13,13 @@ Snake.options = (function(core) {
 			'snake': '#eeeeee',
 			'fruit': '#ff4444',
 		},
+		key: {
+			LEFT: '37',
+			UP: '38',
+			RIGHT: '39',
+			DOWN: '40',
+			SPACE: '32',
+		},
 	}
 })(Snake);
 
@@ -23,15 +30,6 @@ Snake.options = (function(core) {
 	self.dir = 'right';
 	self.score = 0;
 	self.context = {};
-
-	self.key = {
-		LEFT: '37',
-		UP: '38',
-		RIGHT: '39',
-		DOWN: '40',
-		SPACE: '32',
-	}
-
 	self.keys = [],
 
 	self.objs = {
@@ -96,23 +94,23 @@ Snake.options = (function(core) {
 
 	self.check_keys = function(e) {
 		var key = e.keyCode;
-		if (key == self.key.LEFT && self.dir != 'right') {
+		if (key == self.options.key.LEFT && self.dir != 'right') {
 			self.dir = 'left';
 			self.update_objects();
 			self.env.render();
-		} else if (key == self.key.UP && self.dir != 'down') {
+		} else if (key == self.options.key.UP && self.dir != 'down') {
 			self.dir = 'up';
 			self.update_objects();
 			self.env.render();
-		} else if (key == self.key.RIGHT && self.dir != 'left') {
+		} else if (key == self.options.key.RIGHT && self.dir != 'left') {
 			self.dir = 'right';
 			self.update_objects();
 			self.env.render();
-		} else if (key == self.key.DOWN && self.dir != 'up') {
+		} else if (key == self.options.key.DOWN && self.dir != 'up') {
 			self.dir = 'down';
 			self.update_objects();
 			self.env.render();
-		} else if (key == self.key.SPACE) {
+		} else if (key == self.options.key.SPACE) {
 			self.timer.toggle_pause();
 		}
 	}
