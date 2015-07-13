@@ -1,3 +1,11 @@
+/**
+ *
+ * Copyright (C) 2015 Alex Luecke
+ *
+ * @source: https://github.com/alexluecke/snake-js
+ *
+ */
+
 var Snake = Snake || {};
 
 Snake.options = (function(core) {
