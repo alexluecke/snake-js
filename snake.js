@@ -1,28 +1,7 @@
-var Snake = function() {
+var Snake = Snake || {};
 
-	var self = this;
-	self.dir = 'right';
-	self.loop = null;
-	self.score = 0;
-	self.paused = false;
-
-	self.keys = [],
-
-	self.key = {
-		LEFT: '37',
-		UP: '38',
-		RIGHT: '39',
-		DOWN: '40',
-		SPACE: '32',
-	}
-
-	self.objs = {
-		'food': null,
-		'canvas': null,
-		'snake': [],
-	}
-
-	self.parms = {
+Snake.options = (function(core) {
+	return {
 		size: 10,
 		slen: 5,
 		font: {
@@ -34,41 +13,59 @@ var Snake = function() {
 			'snake': '#eeeeee',
 			'fruit': '#ff4444',
 		},
-		time: {
-			'interval': 100,
-			'default': 100,
-			'speed_up': 5,
-		}
+	}
+})(Snake);
+
+(function(core) {
+
+	var self = core;
+
+	self.dir = 'right';
+	self.score = 0;
+	self.context = {};
+
+	self.key = {
+		LEFT: '37',
+		UP: '38',
+		RIGHT: '39',
+		DOWN: '40',
+		SPACE: '32',
 	}
 
-	self.context = {};
+	self.keys = [],
+
+	self.objs = {
+		'food': null,
+		'canvas': null,
+		'snake': [],
+	}
 
 	self.init = function(args) {
 		self.make_canvas();
 		self.context = self.objs.canvas.getContext("2d");
-		self.context.font = self.parms.font.regular;
+		self.context.font = self.options.font.regular;
 		self.w = self.objs.canvas.width || window.innerWidth;
 		self.h = self.objs.canvas.height || window.innerHeight;
-		$.extend(true, self.parms, args);
+		$.extend(true, self.options, args);
 		self.setup_key_events();
 		self.reset();
 	}
 
 	self.run = function() {
-		self.clear_timer();
-		self.loop = setInterval(function() {
+		self.timer.clear();
+		self.timer.start(function() {
 			if (self.paused)
 				return;
 			self.update_objects();
 			self.env.render();
-		}, self.parms.time.interval);
+		});
 	}
 
 	self.reset = function() {
 		self.score = 0;
 		self.dir = 'right';
-		self.clear_timer();
-		self.parms.time.interval = self.parms.time.default;
+		self.timer.clear();
+		self.timer.interval = self.timer.default;
 		self.create_snake();
 		self.create_food();
 	}
@@ -112,12 +109,12 @@ var Snake = function() {
 			self.update_objects();
 			self.env.render();
 		} else if (key == self.key.SPACE) {
-			self.toggle_pause();
+			self.timer.toggle_pause();
 		}
 	}
 
 	self.create_food = function() {
-		var sz = self.parms.size;
+		var sz = self.options.size;
 		self.objs.food = {
 			x: Math.round(Math.random()*(self.w-sz)/sz),
 			y: Math.round(Math.random()*(self.h-sz)/sz),
@@ -127,33 +124,8 @@ var Snake = function() {
 	self.create_snake = function() {
 		// Each snake part has an x,y coordinate
 		self.objs.snake = [];
-		for (var i=self.parms.slen-1; i >= 0; i--) {
+		for (var i=self.options.slen-1; i >= 0; i--) {
 			self.objs.snake.push({x: i, y: 2});
-		}
-	}
-
-	self.update_timer = function() {
-		self.clear_timer();
-		self.run();
-	}
-
-	self.clear_timer = function() {
-		if (typeof self.loop != "undefined")
-			clearInterval(self.loop);
-	}
-
-	self.toggle_pause = function() {
-		if (self.paused === true) {
-			self.paused = false;
-			self.run();
-		} else {
-			self.context.fillStyle = self.parms.colors.text;
-			self.context.font = self.parms.font.large;
-			self.context.fillStyle = 'white';
-			self.context.fillText('Paused', self.w/2-3*20, self.h/2);
-			self.context.font = self.parms.font.regular;
-			self.paused = true;
-			self.clear_timer();
 		}
 	}
 
@@ -170,8 +142,8 @@ var Snake = function() {
 		else if (self.dir === 'left') nx--;
 
 		// If snake body is off the canvas, restart.
-		if (nx < 0 || nx >= self.w/self.parms.size
-				|| ny < 0 || ny >= self.h/self.parms.size
+		if (nx < 0 || nx >= self.w/self.options.size
+				|| ny < 0 || ny >= self.h/self.options.size
 				|| self.env.check_collision(nx, ny, self.objs.snake)) {
 			self.reset();
 			self.run();
@@ -181,10 +153,10 @@ var Snake = function() {
 		// If the snake eats a food, it grows.
 		self.objs.snake.unshift({ x: nx, y: ny });
 		if (nx == self.objs.food.x && ny == self.objs.food.y) {
-			var t = self.parms.time.interval;
+			var t = self.timer.interval;
 			self.create_food();
-			self.parms.time.interval = (t <= 20) ? t : t-self.parms.time.speed_up;
-			self.update_timer();
+			self.timer.interval = (t <= 20) ? t : t-self.timer.speed_up;
+			self.timer.restart();
 			self.score++;
 		} else {
 			self.objs.snake.pop();
@@ -196,69 +168,115 @@ var Snake = function() {
 		self.env.render();
 	}
 
-	self.env = {
+})(Snake);
 
-		check_collision: function(x, y, arr) {
-			for (var i = 0; i < arr.length; i++) {
-				if (arr[i].x == x && arr[i].y == y)
-					return true;
-			}
-			return false;
-		},
+var Snake = Snake || {};
+Snake.env = (function(core) {
 
-		render: function() {
-			var sz = self.parms.size;
-			self.context.fillStyle = self.parms.colors.canvas;
-			self.context.fillRect(0, 0, self.w, self.h);
-			self.context.strokeStyle = "black";
-			self.context.strokeRect(0, 0, self.w, self.h);
+	var self = this;
 
-			// Draw the snake and food
-			self.env.draw_snake();
-			self.env.draw_square(self.objs.food.x, self.objs.food.y, '#ff4444');
-
-			// Show the score
-			self.context.fillStyle = self.parms.colors.text;
-			self.context.fillText(self.score, sz/2, sz);
-		},
-
-		draw_snake: function() {
-			var len = self.objs.snake.length
-				, s = self.objs.snake;
-			for (var i=0; i <  len; i++) {
-				self.env.draw_square(s[i].x, s[i].y, self.parms.colors.snake);
-			}
-		},
-
-		draw_circle: function(x, y, radius, color) {
-			self.context.beginPath();
-			self.context.arc(x, y, radius, 0, 2*Math.PI);
-			self.context.fill();
-		},
-
-		draw_square: function(x, y, color) {
-			var sz = self.parms.size;
-			self.context.fillStyle = color;
-			self.context.fillRect(x*sz, y*sz, sz, sz);
-		},
-
-		draw_barriers: function() {
+	this.check_collision = function(x, y, arr) {
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i].x == x && arr[i].y == y)
+				return true;
 		}
-
+		return false;
 	}
 
-	return { init: self.init, start: self.run }
+	this.render = function() {
+		var sz = core.options.size;
+		core.context.fillStyle = core.options.colors.canvas;
+		core.context.fillRect(0, 0, core.w, core.h);
+		core.context.strokeStyle = "black";
+		core.context.strokeRect(0, 0, core.w, core.h);
 
-};
+		// Draw the snake and food
+		self.draw_snake();
+		self.draw_square(core.objs.food.x, core.objs.food.y, '#ff4444');
+
+		// Show the score
+		core.context.fillStyle = core.options.colors.text;
+		core.context.fillText(core.score, sz/2, sz);
+	}
+
+	this.draw_snake = function() {
+		var len = core.objs.snake.length
+			, s = core.objs.snake;
+		for (var i=0; i <  len; i++) {
+			self.draw_square(s[i].x, s[i].y, core.options.colors.snake);
+		}
+	}
+
+	this.draw_circle = function(x, y, radius, color) {
+		core.context.beginPath();
+		core.context.arc(x, y, radius, 0, 2*Math.PI);
+		core.context.fill();
+	}
+
+	this.draw_square = function(x, y, color) {
+		var sz = core.options.size;
+		core.context.fillStyle = color;
+		core.context.fillRect(x*sz, y*sz, sz, sz);
+	}
+
+	return this;
+
+})(Snake);
+
+Snake = Snake || {}
+Snake.timer = (function(core) {
+
+	var self = this;
+
+	self.interval = 100;
+	self.default = 100;
+	self.speed_up = 5;
+	self.paused = false;
+	self.loop = null;
+
+	self.start = function(f)  {
+		if (typeof f === "function")
+			self.loop = setInterval(f, self.interval);
+		else
+			throw("ExpectedTimerFunction");
+	}
+
+	self.restart = function(value) {
+		self.clear();
+		core.run();
+	}
+
+	self.clear = function() {
+		if (typeof self.loop != "undefined")
+			clearInterval(self.loop);
+	}
+
+	self.toggle_pause = function() {
+		if (self.paused === true) {
+			self.paused = false;
+			self.run();
+		} else {
+			core.context.fillStyle = core.options.colors.text;
+			core.context.font = core.options.font.large;
+			core.context.fillStyle = 'white';
+			core.context.fillText('Paused', core.w/2-3*20, core.h/2);
+			core.context.font = core.options.font.regular;
+			core.paused = true;
+			core.timer.clear();
+		}
+	}
+
+	return this;
+
+})(Snake);
 
 $(document).ready(function(){
-	var g = new Snake();
 	$('#StartSnake').on('click', function() {
+		Snake.init();
 		var style_str = 'height: 100%; width: 100%; padding: 0; margin: 0;';
-		g.init();
 		$('body').attr('style', style_str);
 		$('html').attr('style', style_str);
 		$(this).remove();
-		g.start();
+		Snake.run();
 	});
 })
