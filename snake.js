@@ -266,9 +266,9 @@ Snake.timer = (function(core) {
 	}
 
 	self.decrease_interval = function() {
-			var t = self.interval;
-			self.interval = (t <= 20) ? t : t-self.speed_up;
-			self.restart();
+		var t = self.interval;
+		self.interval = (t <= 20) ? t : t-self.speed_up;
+		self.restart();
 	}
 
 	self.toggle_pause = function() {
