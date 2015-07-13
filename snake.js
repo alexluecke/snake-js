@@ -40,6 +40,11 @@ Snake.options = (function(core) {
 		'snake': [],
 	}
 
+	// Just using this as an alias of sorts
+	self.speed_up = function() {
+		self.timer.decrease_interval()
+	}
+
 	self.init = function(args) {
 		self.make_canvas();
 		self.context = self.objs.canvas.getContext("2d");
@@ -159,9 +164,6 @@ Snake.options = (function(core) {
 			self.objs.snake.pop();
 		}
 
-		// Just using this as an alias of sorts
-		self.speed_up = self.timer.decrease_interval;
-
 		// TODO: Change this to only render changed cells rather than reflowing the
 		// entire canvas. I don't quite know how I want to do this yet so I am
 		// deferring for now.
@@ -228,10 +230,10 @@ Snake.timer = (function(core) {
 
 	var self = this;
 
-	self.paused = false;
-	self.loop = null;
+	this.paused = false;
+	this.loop = null;
 
-	self.options = {
+	this.options = {
 		'interval': 100,
 		'default': 100,
 		'speed_up': 5,
@@ -239,11 +241,11 @@ Snake.timer = (function(core) {
 		'func': null,
 	}
 
-	self.set_timee = function(f) {
+	this.set_timee = function(f) {
 		self.options.func = f;
 	}
 
-	self.start = function()  {
+	this.start = function()  {
 		self.stop();
 		if (typeof self.options.func === "function")
 			self.loop = setInterval(self.options.func, self.options.interval);
@@ -251,31 +253,31 @@ Snake.timer = (function(core) {
 			throw("NoTimeeFunctionSet");
 	}
 
-	self.restart = function(value) {
+	this.restart = function(value) {
 		self.stop();
 		self.start();
 	}
 
-	self.stop = function() {
+	this.stop = function() {
 		if (typeof self.loop != "undefined")
 			clearInterval(self.loop);
 	}
 
-	self.reset = function() {
+	this.reset = function() {
 		self.options.interval = self.options.default;
 	}
 
-	self.is_paused = function() {
+	this.is_paused = function() {
 		return this.paused;
 	}
 
-	self.decrease_interval = function() {
+	this.decrease_interval = function() {
 		var t = self.options.interval;
 		self.options.interval = (t <= self.options.min) ? t : t-self.options.speed_up;
 		self.restart();
 	}
 
-	self.toggle_pause = function() {
+	this.toggle_pause = function() {
 		if (self.is_paused()) {
 			self.paused = false;
 			self.start();
@@ -285,7 +287,16 @@ Snake.timer = (function(core) {
 		}
 	}
 
-	return this;
+	return {
+		'set_timee': this.set_timee,
+		'start': this.start,
+		'restart': this.restart,
+		'stop': this.stop,
+		'reset': this.reset,
+		'is_paused': this.is_paused,
+		'decrease_interval': this.decrease_interval,
+		'toggle_pause': this.toggle_pause
+	}
 
 })(Snake);
 
@@ -299,3 +310,4 @@ $(document).ready(function(){
 		Snake.run();
 	});
 })
+
