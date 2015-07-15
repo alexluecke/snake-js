@@ -240,7 +240,7 @@ Snake.timer = (function(core) {
 	this.options = {
 		'interval': 100,
 		'default': 100,
-		'speed_up': 5,
+		'delta': 5,
 		'min': 20,
 		'func': null,
 	}
@@ -277,7 +277,7 @@ Snake.timer = (function(core) {
 
 	this.decrease_interval = function() {
 		var t = self.options.interval;
-		self.options.interval = (t <= self.options.min) ? t : t-self.options.speed_up;
+		self.options.interval = (t <= self.options.min) ? t : t-self.options.delta;
 		self.restart();
 	}
 
