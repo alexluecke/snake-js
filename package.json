@@ -1,0 +1,19 @@
+{
+  "name": "xndr-snake-js",
+  "version": "1.0.0",
+  "description": "snake game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexluecke/snake-js.git"
+  },
+  "author": "Alex Luecke",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexluecke/snake-js/issues"
+  },
+  "homepage": "https://github.com/alexluecke/snake-js#readme"
+}
