@@ -314,4 +314,3 @@ $(document).ready(function(){
 		Snake.run();
 	});
 })
-
