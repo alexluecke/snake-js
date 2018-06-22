@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/alexluecke/snake-js/issues"
   },
-  "homepage": "https://github.com/alexluecke/snake-js#readme"
+  "homepage": "https://github.com/alexluecke/snake-js#readme",
+  "dependencies": {
+    "jquery": "2.1.4"
+  }
 }
