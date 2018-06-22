@@ -1,21 +1,13 @@
-/**
- *
- * @source: https://github.com/alexluecke/snake-js
- *
- */
+/** @source: https://github.com/alexluecke/snake-js */
 
 import * as $ from 'jquery'
 
-var Snake = Snake || {};
+var Snake = function() {
+	var self = this;
 
-Snake.options = (function(core) {
-	return {
+	self.options = {
 		size: 10,
 		slen: 5,
-		font: {
-			'regular': 'normal 12px monospace',
-			'large': 'normal 24px monospace'
-		},
 		colors: {
 			'canvas': '#282828',
 			'snake': '#eeeeee',
@@ -29,11 +21,6 @@ Snake.options = (function(core) {
 			SPACE: '32',
 		},
 	}
-})(Snake);
-
-(function(core) {
-
-	var self = core;
 
 	self.dir = 'right';
 	self.score = 0;
@@ -46,7 +33,6 @@ Snake.options = (function(core) {
 		'snake': [],
 	}
 
-	// Just using this as an alias of sorts
 	self.speed_up = function() {
 		self.timer.decrease_interval()
 	}
@@ -176,13 +162,6 @@ Snake.options = (function(core) {
 		self.env.render();
 	}
 
-})(Snake);
-
-var Snake = Snake || {};
-Snake.env = (function(core) {
-
-	var self = this;
-
 	this.check_collision = function(x, y, arr) {
 		for (var i = 0; i < arr.length; i++) {
 			if (arr[i].x == x && arr[i].y == y)
@@ -192,54 +171,45 @@ Snake.env = (function(core) {
 	}
 
 	this.render = function() {
-		var sz = core.options.size;
-		core.context.fillStyle = core.options.colors.canvas;
-		core.context.fillRect(0, 0, core.w, core.h);
-		core.context.strokeStyle = "black";
-		core.context.strokeRect(0, 0, core.w, core.h);
+		var sz = self.options.size;
+		self.context.fillStyle = self.options.colors.canvas;
+		self.context.fillRect(0, 0, self.w, self.h);
+		self.context.strokeStyle = "black";
+		self.context.strokeRect(0, 0, self.w, self.h);
 
 		// Draw the snake and food
 		self.draw_snake();
-		self.draw_square(core.objs.food.x, core.objs.food.y, '#ff4444');
+		self.draw_square(self.objs.food.x, self.objs.food.y, '#ff4444');
 
 		// Show the score
-		core.context.fillStyle = core.options.colors.text;
-		core.context.fillText(core.score, sz/2, sz);
+		self.context.fillStyle = self.options.colors.text;
+		self.context.fillText(self.score, sz/2, sz);
 	}
 
 	this.draw_snake = function() {
-		var len = core.objs.snake.length
-			, s = core.objs.snake;
+		var len = self.objs.snake.length
+			, s = self.objs.snake;
 		for (var i=0; i <  len; i++) {
-			self.draw_square(s[i].x, s[i].y, core.options.colors.snake);
+			self.draw_square(s[i].x, s[i].y, self.options.colors.snake);
 		}
 	}
 
 	this.draw_circle = function(x, y, radius, color) {
-		core.context.beginPath();
-		core.context.arc(x, y, radius, 0, 2*Math.PI);
-		core.context.fill();
+		self.context.beginPath();
+		self.context.arc(x, y, radius, 0, 2*Math.PI);
+		self.context.fill();
 	}
 
 	this.draw_square = function(x, y, color) {
-		var sz = core.options.size;
-		core.context.fillStyle = color;
-		core.context.fillRect(x*sz, y*sz, sz, sz);
+		var sz = self.options.size;
+		self.context.fillStyle = color;
+		self.context.fillRect(x*sz, y*sz, sz, sz);
 	}
-
-	return this;
-
-})(Snake);
-
-Snake = Snake || {}
-Snake.timer = (function(core) {
-
-	var self = this;
 
 	this.paused = false;
 	this.loop = null;
 
-	this.options = {
+	this.timerOptions = {
 		'interval': 100,
 		'default': 100,
 		'delta': 5,
@@ -248,13 +218,13 @@ Snake.timer = (function(core) {
 	}
 
 	this.set_timee = function(f) {
-		self.options.func = f;
+		self.timerOptions.func = f;
 	}
 
 	this.start = function()  {
 		self.stop();
-		if (typeof self.options.func === "function")
-			self.loop = setInterval(self.options.func, self.options.interval);
+		if (typeof self.timerOptions.func === "function")
+			self.loop = setInterval(self.timerOptions.func, self.timerOptions.interval);
 		else
 			throw("NoTimeeFunctionSet");
 	}
@@ -270,7 +240,7 @@ Snake.timer = (function(core) {
 	}
 
 	this.reset = function() {
-		self.options.interval = self.options.default;
+		self.timerOptions.interval = self.timerOptions.default;
 	}
 
 	this.is_paused = function() {
@@ -278,8 +248,8 @@ Snake.timer = (function(core) {
 	}
 
 	this.decrease_interval = function() {
-		var t = self.options.interval;
-		self.options.interval = (t <= self.options.min) ? t : t-self.options.delta;
+		var t = self.timerOptions.interval;
+		self.timerOptions.interval = (t <= self.timerOptions.min) ? t : t-self.timerOptions.delta;
 		self.restart();
 	}
 
@@ -303,5 +273,4 @@ Snake.timer = (function(core) {
 		'decrease_interval': this.decrease_interval,
 		'toggle_pause': this.toggle_pause
 	}
-
-})(Snake);
+};
