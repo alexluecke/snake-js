@@ -4,6 +4,8 @@
  *
  */
 
+import * as $ from 'jquery'
+
 var Snake = Snake || {};
 
 Snake.options = (function(core) {
@@ -303,14 +305,3 @@ Snake.timer = (function(core) {
 	}
 
 })(Snake);
-
-$(document).ready(function(){
-	$('#StartSnake').on('click', function() {
-		Snake.init();
-		var style_str = 'height: 100%; width: 100%; padding: 0; margin: 0;';
-		$('body').attr('style', style_str);
-		$('html').attr('style', style_str);
-		$(this).remove();
-		Snake.run();
-	});
-})
