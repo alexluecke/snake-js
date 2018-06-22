@@ -274,3 +274,5 @@ var Snake = function() {
 		'toggle_pause': this.toggle_pause
 	}
 };
+
+exports.Snake = Snake;
